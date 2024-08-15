@@ -56,7 +56,7 @@ export class TypeScriptFile {
         `/**
  * THIS FILE IS AUTO-GENERATED!
  * DO NOT MODIFY OR SAVE THIS FILE MANUALLY.
- * @script - openapi-ts
+ * @script - openapi-ts/index.cjs
  */`,
       ];
     }
