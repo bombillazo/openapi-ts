@@ -26,7 +26,7 @@ export const generateCore = async (
   templates: Templates,
 ): Promise<void> => {
   const config = getConfig();
-
+  return;
   if (config.exportCore) {
     const context = {
       ext: getExt(),
@@ -106,7 +106,7 @@ export const generateCore = async (
     }
 
     if (config.request) {
-      const requestFile = path.resolve(process.cwd(), config.request);
+      const requestFile = path.resolve(process.cwd(), config.request || '');
       const requestFileExists = await existsSync(requestFile);
       if (!requestFileExists) {
         throw new Error(`Custom request file "${requestFile}" does not exists`);

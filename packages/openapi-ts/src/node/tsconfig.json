@@ -5,5 +5,5 @@
   },
   "exclude": ["../**/__tests__"],
   "extends": "../../tsconfig.base.json",
-  "include": ["../", "../client/interfaces"]
+  "include": ["../", "../client/interfaces", "../../global.d.ts"]
 }

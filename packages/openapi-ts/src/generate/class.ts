@@ -8,6 +8,7 @@ import { Config } from '../types/config';
 import { Files } from '../types/utils';
 import { camelCase } from '../utils/camelCase';
 import { getConfig } from '../utils/config';
+import { getExt } from '../utils/extension';
 import { getHttpRequestName } from '../utils/getHttpRequestName';
 import type { Templates } from '../utils/handlebars';
 import { sortByName } from '../utils/sort';
@@ -186,9 +187,11 @@ export const generateClientClass = async (
 ) => {
   const config = getConfig();
 
+  return;
   const templateResult = templates.client({
     $config: config,
     ...client,
+    ext: getExt(),
     httpRequest: getHttpRequestName(config.client),
     models: sortByName(client.models),
     services: sortByName(client.services),
