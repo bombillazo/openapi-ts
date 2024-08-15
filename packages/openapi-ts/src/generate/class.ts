@@ -19,7 +19,7 @@ const operationServiceName = (name: string): string =>
   `${camelCase({
     input: name,
     pascalCase: true,
-  })}`;
+  })}Service`;
 
 const operationVarName = (name: string): string =>
   `${camelCase({
@@ -158,6 +158,7 @@ export const generateSDKClass = async ({
     members: [...instanceVars, constructor],
     name: sdkName(config.services.sdk),
     spaceBetweenMembers: false,
+    useExport: false,
   });
   files.sdk.add(statement);
 

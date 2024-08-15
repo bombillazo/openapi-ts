@@ -131,15 +131,22 @@ export const createClassDeclaration = ({
   members = [],
   name,
   spaceBetweenMembers = true,
+  useExport = true,
 }: {
   decorator?: ClassDecorator;
   members?: ts.ClassElement[];
   name: string;
   spaceBetweenMembers?: boolean;
+  useExport?: boolean;
 }) => {
-  let modifiers: ts.ModifierLike[] = [
-    ts.factory.createModifier(ts.SyntaxKind.ExportKeyword),
-  ];
+  let modifiers: ts.ModifierLike[] = [];
+
+  if (useExport) {
+    modifiers = [
+      ts.factory.createModifier(ts.SyntaxKind.ExportKeyword),
+      ...modifiers,
+    ];
+  }
 
   if (decorator) {
     modifiers = [
