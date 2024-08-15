@@ -158,15 +158,8 @@ export const generateSDKClass = async ({
     members: [...instanceVars, constructor],
     name: sdkName(config.services.sdk),
     spaceBetweenMembers: false,
-    useExport: false,
   });
   files.sdk.add(statement);
-
-  const defaultExport = compiler.exportDefaultDeclaration({
-    expression: compiler.identifier({ text: sdkName(config.services.sdk) }),
-  });
-
-  files.sdk.add(defaultExport);
 };
 
 /**

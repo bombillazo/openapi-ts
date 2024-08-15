@@ -68,7 +68,7 @@ export const generateIndexFile = async ({
     .forEach((name) => {
       const file = files[name];
 
-      if (name === 'index' || file.isEmpty()) {
+      if (name === 'index' || name === 'sdk.ts' || file.isEmpty()) {
         return;
       }
 
