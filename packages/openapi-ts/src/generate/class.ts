@@ -19,7 +19,7 @@ const operationServiceName = (name: string): string =>
   `${camelCase({
     input: name,
     pascalCase: true,
-  })}Service`;
+  })}`;
 
 const operationVarName = (name: string): string =>
   `${camelCase({
