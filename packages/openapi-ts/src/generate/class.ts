@@ -8,7 +8,7 @@ import { Config } from '../types/config';
 import { Files } from '../types/utils';
 import { camelCase } from '../utils/camelCase';
 import { getConfig } from '../utils/config';
-import { getExt } from '../utils/extension';
+import { appendExt, getExt } from '../utils/extension';
 import { getHttpRequestName } from '../utils/getHttpRequestName';
 import type { Templates } from '../utils/handlebars';
 import { sortByName } from '../utils/sort';
@@ -66,8 +66,7 @@ export const generateSDKClass = async ({
   });
   client.services.map((service) => {
     files.sdk.import({
-      // this detection could be done safer, but it shouldn't cause any issues
-      module: `./services.gen`,
+      module: appendExt(`./services.gen`),
       name: operationServiceName(service.name),
     });
   });
