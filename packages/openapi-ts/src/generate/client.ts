@@ -11,7 +11,7 @@ const require = createRequire(import.meta.url);
 export const clientModulePath = () => {
   const config = getConfig();
 
-  return appendExt(config.client.bundle ? './client' : config.client.name);
+  return config.client.bundle ? appendExt('./client') : config.client.name;
 };
 
 export const clientOptionsTypeName = () => 'Options';
