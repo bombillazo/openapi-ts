@@ -698,7 +698,7 @@ const processService = ({
         multiLine: false,
         parameters: [
           {
-            accessLevel: 'public',
+            accessLevel: 'private',
             isReadOnly: true,
             name: 'client',
             type: 'Client<Request, Response, RequestOptions>',
