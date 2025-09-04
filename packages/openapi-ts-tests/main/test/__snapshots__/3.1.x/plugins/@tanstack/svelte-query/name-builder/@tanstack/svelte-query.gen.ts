@@ -57,29 +57,12 @@ export const getFooE = (options?: Options<GetFooData>) => {
     });
 };
 
-export const fooPostD = (options?: Options<FooPostData>) => createQueryKey('fooPost', options);
-
-export const fooPostE = (options?: Options<FooPostData>) => {
-    return queryOptions({
-        queryFn: async ({ queryKey, signal }) => {
-            const { data } = await fooPost({
-                ...options,
-                ...queryKey[0],
-                signal,
-                throwOnError: true
-            });
-            return data;
-        },
-        queryKey: fooPostD(options)
-    });
-};
-
 export const fooPostC = (options?: Partial<Options<FooPostData>>): MutationOptions<FooPostResponse, DefaultError, Options<FooPostData>> => {
     const mutationOptions: MutationOptions<FooPostResponse, DefaultError, Options<FooPostData>> = {
-        mutationFn: async (localOptions) => {
+        mutationFn: async (fnOptions) => {
             const { data } = await fooPost({
                 ...options,
-                ...localOptions,
+                ...fnOptions,
                 throwOnError: true
             });
             return data;
@@ -90,10 +73,10 @@ export const fooPostC = (options?: Partial<Options<FooPostData>>): MutationOptio
 
 export const fooPutC = (options?: Partial<Options<FooPutData>>): MutationOptions<FooPutResponse, DefaultError, Options<FooPutData>> => {
     const mutationOptions: MutationOptions<FooPutResponse, DefaultError, Options<FooPutData>> = {
-        mutationFn: async (localOptions) => {
+        mutationFn: async (fnOptions) => {
             const { data } = await fooPut({
                 ...options,
-                ...localOptions,
+                ...fnOptions,
                 throwOnError: true
             });
             return data;
@@ -119,29 +102,12 @@ export const getFooBarE = (options?: Options<GetFooBarData>) => {
     });
 };
 
-export const fooBarPostD = (options?: Options<FooBarPostData>) => createQueryKey('fooBarPost', options);
-
-export const fooBarPostE = (options?: Options<FooBarPostData>) => {
-    return queryOptions({
-        queryFn: async ({ queryKey, signal }) => {
-            const { data } = await fooBarPost({
-                ...options,
-                ...queryKey[0],
-                signal,
-                throwOnError: true
-            });
-            return data;
-        },
-        queryKey: fooBarPostD(options)
-    });
-};
-
 export const fooBarPostC = (options?: Partial<Options<FooBarPostData>>): MutationOptions<FooBarPostResponse, DefaultError, Options<FooBarPostData>> => {
     const mutationOptions: MutationOptions<FooBarPostResponse, DefaultError, Options<FooBarPostData>> = {
-        mutationFn: async (localOptions) => {
+        mutationFn: async (fnOptions) => {
             const { data } = await fooBarPost({
                 ...options,
-                ...localOptions,
+                ...fnOptions,
                 throwOnError: true
             });
             return data;
@@ -152,10 +118,10 @@ export const fooBarPostC = (options?: Partial<Options<FooBarPostData>>): Mutatio
 
 export const fooBarPutC = (options?: Partial<Options<FooBarPutData>>): MutationOptions<FooBarPutResponse, DefaultError, Options<FooBarPutData>> => {
     const mutationOptions: MutationOptions<FooBarPutResponse, DefaultError, Options<FooBarPutData>> = {
-        mutationFn: async (localOptions) => {
+        mutationFn: async (fnOptions) => {
             const { data } = await fooBarPut({
                 ...options,
-                ...localOptions,
+                ...fnOptions,
                 throwOnError: true
             });
             return data;

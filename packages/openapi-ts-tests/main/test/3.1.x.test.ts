@@ -46,6 +46,20 @@ describe(`OpenAPI ${version}`, () => {
   const scenarios = [
     {
       config: createConfig({
+        input: 'external.yaml',
+        output: 'external',
+      }),
+      description: 'handles external references',
+    },
+    {
+      config: createConfig({
+        input: 'pattern-properties.json',
+        output: 'pattern-properties',
+      }),
+      description: 'handles pattern properties',
+    },
+    {
+      config: createConfig({
         input: 'additional-properties-false.json',
         output: 'additional-properties-false',
       }),
@@ -466,6 +480,30 @@ describe(`OpenAPI ${version}`, () => {
     },
     {
       config: createConfig({
+        input: 'enum-names-values.yaml',
+        output: 'enum-names-values-typescript-const',
+        plugins: [
+          {
+            enums: {
+              case: 'camelCase',
+              mode: 'typescript-const',
+            },
+            name: '@hey-api/typescript',
+          },
+        ],
+      }),
+      description: 'handles TypeScript const enum modifier',
+    },
+    {
+      config: createConfig({
+        input: 'union-types.json',
+        output: 'union-types',
+        plugins: ['@hey-api/typescript'],
+      }),
+      description: 'handles union of primitive types',
+    },
+    {
+      config: createConfig({
         input: 'enum-null.json',
         output: 'enum-null',
         plugins: ['@hey-api/typescript', 'valibot'],
@@ -806,6 +844,89 @@ describe(`OpenAPI ${version}`, () => {
       }),
       description:
         'generates validator schemas for all integer format combinations (number/integer/string types with int8, int16, int32, int64, uint8, uint16, uint32, uint64 formats)',
+    },
+    {
+      config: createConfig({
+        input: 'opencode.yaml',
+        output: 'sse-angular',
+        parser: {
+          filters: {
+            operations: {
+              include: ['GET /event'],
+            },
+          },
+        },
+        plugins: ['@hey-api/client-angular', '@hey-api/sdk'],
+      }),
+      description: 'client with SSE (Angular)',
+    },
+    {
+      config: createConfig({
+        input: 'opencode.yaml',
+        output: 'sse-axios',
+        parser: {
+          filters: {
+            operations: {
+              include: ['GET /event'],
+            },
+          },
+        },
+        plugins: ['@hey-api/client-axios', '@hey-api/sdk'],
+      }),
+      description: 'client with SSE (Axios)',
+    },
+    {
+      config: createConfig({
+        input: 'opencode.yaml',
+        output: 'sse-fetch',
+        parser: {
+          filters: {
+            operations: {
+              include: ['GET /event'],
+            },
+          },
+        },
+        plugins: ['@hey-api/client-fetch', '@hey-api/sdk'],
+      }),
+      description: 'client with SSE (Fetch)',
+    },
+    {
+      config: createConfig({
+        input: 'opencode.yaml',
+        output: 'sse-next',
+        parser: {
+          filters: {
+            operations: {
+              include: ['GET /event'],
+            },
+          },
+        },
+        plugins: ['@hey-api/client-next', '@hey-api/sdk'],
+      }),
+      description: 'client with SSE (Next.js)',
+    },
+    {
+      config: createConfig({
+        input: 'opencode.yaml',
+        output: 'sse-nuxt',
+        parser: {
+          filters: {
+            operations: {
+              include: ['GET /event'],
+            },
+          },
+        },
+        plugins: ['@hey-api/client-nuxt', '@hey-api/sdk'],
+      }),
+      description: 'client with SSE (Nuxt)',
+    },
+    {
+      config: createConfig({
+        input: 'zoom-video-sdk.json',
+        output: 'webhooks',
+        plugins: ['@hey-api/typescript', 'valibot', 'zod'],
+      }),
+      description: 'webhook types and validator schemas',
     },
   ];
 

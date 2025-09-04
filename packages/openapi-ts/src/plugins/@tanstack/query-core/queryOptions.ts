@@ -4,6 +4,7 @@ import type { IR } from '../../../ir/types';
 import { tsc } from '../../../tsc';
 import {
   createOperationComment,
+  hasOperationSse,
   isOperationOptionsRequired,
 } from '../../shared/utils/operation';
 import { handleMeta } from './meta';
@@ -16,6 +17,7 @@ import type { PluginInstance, PluginState } from './types';
 import { useTypeData } from './useType';
 
 const queryOptionsFn = 'queryOptions';
+const optionsParamName = 'options';
 
 export const createQueryOptions = ({
   operation,
@@ -27,14 +29,9 @@ export const createQueryOptions = ({
   plugin: PluginInstance;
   queryFn: string;
   state: PluginState;
-}) => {
-  if (
-    !plugin.config.queryOptions ||
-    !(['get', 'post'] as ReadonlyArray<typeof operation.method>).includes(
-      operation.method,
-    )
-  ) {
-    return state;
+}): void => {
+  if (hasOperationSse({ operation })) {
+    return;
   }
 
   const file = plugin.context.file({ id: plugin.name })!;
@@ -85,7 +82,7 @@ export const createQueryOptions = ({
           multiLine: true,
           obj: [
             {
-              spread: 'options',
+              spread: optionsParamName,
             },
             {
               spread: 'queryKey[0]',
@@ -162,7 +159,7 @@ export const createQueryOptions = ({
       key: 'queryKey',
       value: tsc.callExpression({
         functionName: identifierQueryKey.name || '',
-        parameters: ['options'],
+        parameters: [optionsParamName],
       }),
     },
   ];
@@ -180,22 +177,18 @@ export const createQueryOptions = ({
     comment: plugin.config.comments
       ? createOperationComment({ operation })
       : undefined,
-    exportConst: true,
+    exportConst: plugin.config.queryOptions.exported,
     expression: tsc.arrowFunction({
       parameters: [
         {
           isRequired: isRequiredOptions,
-          name: 'options',
+          name: optionsParamName,
           type: typeData,
         },
       ],
       statements: [
         tsc.returnFunctionCall({
-          args: [
-            tsc.objectExpression({
-              obj: queryOptionsObj,
-            }),
-          ],
+          args: [tsc.objectExpression({ obj: queryOptionsObj })],
           name: queryOptionsFn,
         }),
       ],
@@ -205,6 +198,4 @@ export const createQueryOptions = ({
     // TODO: AxiosError<PutSubmissionMetaError>
   });
   file.add(statement);
-
-  return state;
 };

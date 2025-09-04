@@ -46,6 +46,13 @@ describe(`OpenAPI ${version}`, () => {
   const scenarios = [
     {
       config: createConfig({
+        input: 'external.yaml',
+        output: 'external',
+      }),
+      description: 'handles external references',
+    },
+    {
+      config: createConfig({
         input: 'additional-properties-false.json',
         output: 'additional-properties-false',
       }),
@@ -449,6 +456,22 @@ describe(`OpenAPI ${version}`, () => {
       }),
       description:
         'handles various enum names and values (TypeScript, preserve)',
+    },
+    {
+      config: createConfig({
+        input: 'enum-names-values.json',
+        output: 'enum-names-values-typescript-const',
+        plugins: [
+          {
+            enums: {
+              case: 'camelCase',
+              mode: 'typescript-const',
+            },
+            name: '@hey-api/typescript',
+          },
+        ],
+      }),
+      description: 'handles TypeScript const enum modifier',
     },
     {
       config: createConfig({

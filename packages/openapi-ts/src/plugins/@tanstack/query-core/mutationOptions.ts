@@ -19,18 +19,7 @@ export const createMutationOptions = ({
   plugin: PluginInstance;
   queryFn: string;
   state: PluginState;
-}) => {
-  if (
-    !plugin.config.mutationOptions.enabled ||
-    !(
-      ['delete', 'patch', 'post', 'put'] as ReadonlyArray<
-        typeof operation.method
-      >
-    ).includes(operation.method)
-  ) {
-    return state;
-  }
-
+}): void => {
   const mutationsType =
     plugin.name === '@tanstack/angular-query-experimental' ||
     plugin.name === '@tanstack/svelte-query' ||
@@ -58,6 +47,8 @@ export const createMutationOptions = ({
   // TODO: better types syntax
   const mutationType = `${mutationsType}<${typeResponse}, ${typeError.name}, ${typeData}>`;
 
+  const fnOptions = 'fnOptions';
+
   const awaitSdkExpression = tsc.awaitExpression({
     expression: tsc.callExpression({
       functionName: queryFn,
@@ -69,7 +60,7 @@ export const createMutationOptions = ({
               spread: 'options',
             },
             {
-              spread: 'localOptions',
+              spread: fnOptions,
             },
             {
               key: 'throwOnError',
@@ -119,7 +110,7 @@ export const createMutationOptions = ({
         multiLine: true,
         parameters: [
           {
-            name: 'localOptions',
+            name: fnOptions,
           },
         ],
         statements,
@@ -167,6 +158,4 @@ export const createMutationOptions = ({
     name: identifier.name || '',
   });
   file.add(statement);
-
-  return state;
 };

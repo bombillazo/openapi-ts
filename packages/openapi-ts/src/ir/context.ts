@@ -1,39 +1,19 @@
 import path from 'node:path';
 
+import { CodegenProject } from '@hey-api/codegen-core';
+
 import type { Package } from '../config/utils/package';
 import { packageFactory } from '../config/utils/package';
 import { GeneratedFile } from '../generate/file';
+import { TypeScriptRenderer } from '../generate/renderer';
 import type { PluginConfigMap } from '../plugins/config';
 import { PluginInstance } from '../plugins/shared/utils/instance';
 import type { PluginNames } from '../plugins/types';
-import type { StringCase } from '../types/case';
 import type { Config } from '../types/config';
 import type { Files } from '../types/utils';
 import type { Logger } from '../utils/logger';
 import { resolveRef } from '../utils/ref';
 import type { IR } from './types';
-
-export interface ContextFile {
-  /**
-   * Define casing for identifiers in this file.
-   */
-  case?: StringCase;
-  /**
-   * Should the exports from this file be re-exported in the index barrel file?
-   */
-  exportFromIndex?: boolean;
-  /**
-   * Unique file identifier.
-   */
-  id: string;
-  /**
-   * Relative file path to the output path.
-   *
-   * @example
-   * 'bar/foo.ts'
-   */
-  path: string;
-}
 
 export class IRContext<Spec extends Record<string, any> = any> {
   /**
@@ -45,6 +25,7 @@ export class IRContext<Spec extends Record<string, any> = any> {
    * A map of files that will be generated from `spec`.
    */
   public files: Files = {};
+  public gen: CodegenProject;
   /**
    * Intermediate representation model obtained from `spec`.
    */
@@ -83,16 +64,24 @@ export class IRContext<Spec extends Record<string, any> = any> {
     spec: Spec;
   }) {
     this.config = config;
+    this.gen = new CodegenProject();
     this.logger = logger;
     this.package = packageFactory(dependencies);
     this.spec = spec;
+
+    if (config.output.indexFile) {
+      this.gen.createFile('index', {
+        extension: '.ts',
+        renderer: new TypeScriptRenderer(),
+      });
+    }
   }
 
   /**
    * Create and return a new TypeScript file. Also set the current file context
    * to the newly created file.
    */
-  public createFile(file: ContextFile): GeneratedFile {
+  public createFile(file: IR.ContextFile): GeneratedFile {
     // TODO: parser - handle attempt to create duplicate
     const outputParts = file.path.split('/');
     const outputDir = path.resolve(
@@ -127,7 +116,7 @@ export class IRContext<Spec extends Record<string, any> = any> {
   /**
    * Returns a specific file by ID from `files`.
    */
-  public file({ id }: Pick<ContextFile, 'id'>): GeneratedFile | undefined {
+  public file({ id }: Pick<IR.ContextFile, 'id'>): GeneratedFile | undefined {
     return this.files[id];
   }
 
@@ -146,6 +135,7 @@ export class IRContext<Spec extends Record<string, any> = any> {
       config: plugin.config as any,
       context: this as any,
       dependencies: plugin.dependencies ?? [],
+      gen: this.gen,
       handler: plugin.handler,
       name: plugin.name,
       output: plugin.output!,

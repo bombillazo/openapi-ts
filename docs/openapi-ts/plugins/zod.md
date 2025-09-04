@@ -24,6 +24,7 @@ The Zod plugin for Hey API generates schemas from your OpenAPI spec, fully compa
 - Zod v4 support
 - seamless integration with `@hey-api/openapi-ts` ecosystem
 - Zod schemas for requests, responses, and reusable definitions
+- minimal learning curve thanks to extending the underlying technology
 
 ## Installation
 
@@ -31,7 +32,7 @@ In your [configuration](/openapi-ts/get-started), add `zod` to your plugins and 
 
 ```js
 export default {
-  input: 'https://get.heyapi.dev/hey-api/backend',
+  input: 'hey-api/backend', // sign up at app.heyapi.dev
   output: 'src/client',
   plugins: [
     // ...other plugins
@@ -46,7 +47,7 @@ To add data validators to your SDKs, set `sdk.validator` to `true`.
 
 ```js
 export default {
-  input: 'https://get.heyapi.dev/hey-api/backend',
+  input: 'hey-api/backend', // sign up at app.heyapi.dev
   output: 'src/client',
   plugins: [
     // ...other plugins
@@ -88,7 +89,7 @@ const zData = z.object({
 
 ```js [config]
 export default {
-  input: 'https://get.heyapi.dev/hey-api/backend',
+  input: 'hey-api/backend', // sign up at app.heyapi.dev
   output: 'src/client',
   plugins: [
     // ...other plugins
@@ -127,7 +128,7 @@ const zResponse = z.union([
 
 ```js [config]
 export default {
-  input: 'https://get.heyapi.dev/hey-api/backend',
+  input: 'hey-api/backend', // sign up at app.heyapi.dev
   output: 'src/client',
   plugins: [
     // ...other plugins
@@ -159,7 +160,7 @@ const zBar = z.object({
 
 ```js [config]
 export default {
-  input: 'https://get.heyapi.dev/hey-api/backend',
+  input: 'hey-api/backend', // sign up at app.heyapi.dev
   output: 'src/client',
   plugins: [
     // ...other plugins
@@ -175,6 +176,66 @@ export default {
 
 You can customize the naming and casing pattern for `definitions` schemas using the `.name` and `.case` options.
 
+## ISO Datetimes
+
+By default, values without a timezone or with a timezone offset are not allowed in the `z.iso.datetime()` method.
+
+### Timezone offsets
+
+You can allow values with timezone offsets by setting `dates.offset` to `true`.
+
+::: code-group
+
+```ts [example]
+export const zFoo = z.iso.datetime({ offset: true });
+```
+
+```js [config]
+export default {
+  input: 'hey-api/backend', // sign up at app.heyapi.dev
+  output: 'src/client',
+  plugins: [
+    // ...other plugins
+    {
+      name: 'zod',
+      dates: {
+        offset: true, // [!code ++]
+      },
+    },
+  ],
+};
+```
+
+:::
+
+### Local times
+
+You can allow values without a timezone by setting `dates.local` to `true`.
+
+::: code-group
+
+```ts [example]
+export const zFoo = z.iso.datetime({ local: true });
+```
+
+```js [config]
+export default {
+  input: 'hey-api/backend', // sign up at app.heyapi.dev
+  output: 'src/client',
+  plugins: [
+    // ...other plugins
+    {
+      name: 'zod',
+      dates: {
+        local: true, // [!code ++]
+      },
+    },
+  ],
+};
+```
+
+:::
+
 ## Metadata
 
 It's often useful to associate a schema with some additional [metadata](https://zod.dev/metadata) for documentation, code generation, AI structured outputs, form validation, and other purposes. If this is your use case, you can set `metadata` to `true` to generate additional metadata about schemas.
@@ -189,7 +250,7 @@ export const zFoo = z.string().register(z.globalRegistry, {
 
 ```js [config]
 export default {
-  input: 'https://get.heyapi.dev/hey-api/backend',
+  input: 'hey-api/backend', // sign up at app.heyapi.dev
   output: 'src/client',
   plugins: [
     // ...other plugins
@@ -215,7 +276,7 @@ export type ResponseZodType = z.infer<typeof zResponse>;
 
 ```js [config]
 export default {
-  input: 'https://get.heyapi.dev/hey-api/backend',
+  input: 'hey-api/backend', // sign up at app.heyapi.dev
   output: 'src/client',
   plugins: [
     // ...other plugins

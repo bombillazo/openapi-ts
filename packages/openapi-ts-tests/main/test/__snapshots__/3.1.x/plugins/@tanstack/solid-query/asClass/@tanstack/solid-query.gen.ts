@@ -57,29 +57,12 @@ export const getFooOptions = (options?: Options<GetFooData>) => {
     });
 };
 
-export const fooPostQueryKey = (options?: Options<FooPostData>) => createQueryKey('fooPost', options);
-
-export const fooPostOptions = (options?: Options<FooPostData>) => {
-    return queryOptions({
-        queryFn: async ({ queryKey, signal }) => {
-            const { data } = await FooBazService.fooService.post({
-                ...options,
-                ...queryKey[0],
-                signal,
-                throwOnError: true
-            });
-            return data;
-        },
-        queryKey: fooPostQueryKey(options)
-    });
-};
-
 export const fooPostMutation = (options?: Partial<Options<FooPostData>>): MutationOptions<FooPostResponse, DefaultError, Options<FooPostData>> => {
     const mutationOptions: MutationOptions<FooPostResponse, DefaultError, Options<FooPostData>> = {
-        mutationFn: async (localOptions) => {
+        mutationFn: async (fnOptions) => {
             const { data } = await FooBazService.fooService.post({
                 ...options,
-                ...localOptions,
+                ...fnOptions,
                 throwOnError: true
             });
             return data;
@@ -90,10 +73,10 @@ export const fooPostMutation = (options?: Partial<Options<FooPostData>>): Mutati
 
 export const fooPutMutation = (options?: Partial<Options<FooPutData>>): MutationOptions<FooPutResponse, DefaultError, Options<FooPutData>> => {
     const mutationOptions: MutationOptions<FooPutResponse, DefaultError, Options<FooPutData>> = {
-        mutationFn: async (localOptions) => {
+        mutationFn: async (fnOptions) => {
             const { data } = await FooBazService.fooService.put({
                 ...options,
-                ...localOptions,
+                ...fnOptions,
                 throwOnError: true
             });
             return data;
@@ -119,29 +102,12 @@ export const getFooBarOptions = (options?: Options<GetFooBarData>) => {
     });
 };
 
-export const fooBarPostQueryKey = (options?: Options<FooBarPostData>) => createQueryKey('fooBarPost', options);
-
-export const fooBarPostOptions = (options?: Options<FooBarPostData>) => {
-    return queryOptions({
-        queryFn: async ({ queryKey, signal }) => {
-            const { data } = await FooBazService.fooService.barService.post({
-                ...options,
-                ...queryKey[0],
-                signal,
-                throwOnError: true
-            });
-            return data;
-        },
-        queryKey: fooBarPostQueryKey(options)
-    });
-};
-
 export const fooBarPostMutation = (options?: Partial<Options<FooBarPostData>>): MutationOptions<FooBarPostResponse, DefaultError, Options<FooBarPostData>> => {
     const mutationOptions: MutationOptions<FooBarPostResponse, DefaultError, Options<FooBarPostData>> = {
-        mutationFn: async (localOptions) => {
+        mutationFn: async (fnOptions) => {
             const { data } = await FooBazService.fooService.barService.post({
                 ...options,
-                ...localOptions,
+                ...fnOptions,
                 throwOnError: true
             });
             return data;
@@ -152,10 +118,10 @@ export const fooBarPostMutation = (options?: Partial<Options<FooBarPostData>>): 
 
 export const fooBarPutMutation = (options?: Partial<Options<FooBarPutData>>): MutationOptions<FooBarPutResponse, DefaultError, Options<FooBarPutData>> => {
     const mutationOptions: MutationOptions<FooBarPutResponse, DefaultError, Options<FooBarPutData>> = {
-        mutationFn: async (localOptions) => {
+        mutationFn: async (fnOptions) => {
             const { data } = await FooBazService.fooService.barService.put({
                 ...options,
-                ...localOptions,
+                ...fnOptions,
                 throwOnError: true
             });
             return data;

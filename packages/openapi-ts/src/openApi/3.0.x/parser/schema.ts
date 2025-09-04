@@ -372,29 +372,38 @@ const parseAllOf = ({
         const values = discriminatorValues(
           state.$ref,
           ref.discriminator.mapping,
+          // If the ref has oneOf, we only use the schema name as the value
+          // only if current schema is part of the oneOf. Else it is extending
+          // the ref schema
+          ref.oneOf
+            ? () => ref.oneOf!.some((o) => '$ref' in o && o.$ref === state.$ref)
+            : undefined,
         );
-        const valueSchemas: ReadonlyArray<IR.SchemaObject> = values.map(
-          (value) => ({
-            const: value,
-            type: 'string',
-          }),
-        );
-        const irDiscriminatorSchema: IR.SchemaObject = {
-          properties: {
-            [ref.discriminator.propertyName]:
-              valueSchemas.length > 1
-                ? {
-                    items: valueSchemas,
-                    logicalOperator: 'or',
-                  }
-                : valueSchemas[0]!,
-          },
-          type: 'object',
-        };
-        if (ref.required?.includes(ref.discriminator.propertyName)) {
-          irDiscriminatorSchema.required = [ref.discriminator.propertyName];
+
+        if (values.length > 0) {
+          const valueSchemas: ReadonlyArray<IR.SchemaObject> = values.map(
+            (value) => ({
+              const: value,
+              type: 'string',
+            }),
+          );
+          const irDiscriminatorSchema: IR.SchemaObject = {
+            properties: {
+              [ref.discriminator.propertyName]:
+                valueSchemas.length > 1
+                  ? {
+                      items: valueSchemas,
+                      logicalOperator: 'or',
+                    }
+                  : valueSchemas[0]!,
+            },
+            type: 'object',
+          };
+          if (ref.required?.includes(ref.discriminator.propertyName)) {
+            irDiscriminatorSchema.required = [ref.discriminator.propertyName];
+          }
+          schemaItems.push(irDiscriminatorSchema);
         }
-        schemaItems.push(irDiscriminatorSchema);
       }
 
       if (!state.circularReferenceTracker.has(compositionSchema.$ref)) {
@@ -809,6 +818,24 @@ const parseRef = ({
   schema: ReferenceObject;
   state: SchemaState;
 }): IR.SchemaObject => {
+  // Inline non-component refs (e.g. #/paths/...) to avoid generating orphaned named types
+  const isComponentsRef = schema.$ref.startsWith('#/components/');
+  if (!isComponentsRef) {
+    if (!state.circularReferenceTracker.has(schema.$ref)) {
+      const refSchema = context.resolveRef<SchemaObject>(schema.$ref);
+      return schemaToIrSchema({
+        context,
+        schema: refSchema,
+        state: {
+          ...state,
+          $ref: schema.$ref,
+          isProperty: false,
+        },
+      });
+    }
+    // Fallback to preserving the ref if circular
+  }
+
   const irSchema: IR.SchemaObject = {};
 
   // refs using unicode characters become encoded, didn't investigate why

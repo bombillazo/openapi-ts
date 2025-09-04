@@ -34,7 +34,6 @@ export const defaultConfig: TanStackReactQueryPlugin['Config'] = {
       defaultValue: {
         case: plugin.config.case ?? 'camelCase',
         enabled: true,
-        meta: false,
         name: '{{name}}InfiniteOptions',
       },
       mappers: {
@@ -49,7 +48,6 @@ export const defaultConfig: TanStackReactQueryPlugin['Config'] = {
       defaultValue: {
         case: plugin.config.case ?? 'camelCase',
         enabled: true,
-        meta: false,
         name: '{{name}}Mutation',
       },
       mappers: {
@@ -79,7 +77,7 @@ export const defaultConfig: TanStackReactQueryPlugin['Config'] = {
       defaultValue: {
         case: plugin.config.case ?? 'camelCase',
         enabled: true,
-        meta: false,
+        exported: true,
         name: '{{name}}Options',
       },
       mappers: {
@@ -89,6 +87,29 @@ export const defaultConfig: TanStackReactQueryPlugin['Config'] = {
       },
       value: plugin.config.queryOptions,
     });
+
+    plugin.config.useQuery = context.valueToObject({
+      defaultValue: {
+        case: plugin.config.case ?? 'camelCase',
+        enabled: false,
+        name: 'use{{name}}Query',
+      },
+      mappers: {
+        boolean: (enabled) => ({ enabled }),
+        function: (name) => ({ enabled: true, name }),
+        object: (fields) => ({ enabled: true, ...fields }),
+        string: (name) => ({ enabled: true, name }),
+      },
+      value: plugin.config.useQuery,
+    });
+
+    if (plugin.config.useQuery.enabled) {
+      // useQuery hooks consume queryOptions
+      if (!plugin.config.queryOptions.enabled) {
+        plugin.config.queryOptions.enabled = true;
+        plugin.config.queryOptions.exported = false;
+      }
+    }
   },
 };
 

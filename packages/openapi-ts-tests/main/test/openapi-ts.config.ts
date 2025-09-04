@@ -35,13 +35,17 @@ export default defineConfig(() => {
         getSpecsPath(),
         '3.1.x',
         // 'invalid',
-        'openai.yaml',
+        // 'openai.yaml',
         // 'full.yaml',
-        // 'validators-circular-ref.json',
+        'opencode.yaml',
+        // 'zoom-video-sdk.json',
       ),
-      // path: 'http://localhost:4000/',
-      // path: 'https://get.heyapi.dev/',
+      // https://registry.scalar.com/@lubos-heyapi-dev-team/apis/demo-api-scalar-galaxy/latest?format=json
+      // path: 'scalar:@lubos-heyapi-dev-team/demo-api-scalar-galaxy',
+      // path: 'hey-api/backend',
+      // path: 'hey-api/backend?branch=main&version=1.0.0',
       // path: 'https://get.heyapi.dev/hey-api/backend?branch=main&version=1.0.0',
+      // path: 'http://localhost:4000/',
       // path: 'http://localhost:8000/openapi.json',
       // path: 'https://mongodb-mms-prod-build-server.s3.amazonaws.com/openapi/2caffd88277a4e27c95dcefc7e3b6a63a3b03297-v2-2023-11-15.json',
       // path: 'https://raw.githubusercontent.com/swagger-api/swagger-petstore/master/src/main/resources/openapi.yaml',
@@ -76,10 +80,10 @@ export default defineConfig(() => {
       filters: {
         // deprecated: false,
         operations: {
-          // include: [
-          //   'GET /api/v{api-version}/defaults',
-          //   // '/^[A-Z]+ /v1//',
-          // ],
+          include: [
+            // 'GET /event',
+            // '/^[A-Z]+ /v1//',
+          ],
         },
         // orphans: true,
         // preserveOrder: true,
@@ -89,6 +93,16 @@ export default defineConfig(() => {
         // tags: {
         //   exclude: ['bar'],
         // },
+      },
+      hooks: {
+        operations: {
+          isQuery: (op) => {
+            if (op.method === 'post' && op.path === '/search') {
+              return true;
+            }
+            return undefined;
+          },
+        },
       },
       pagination: {
         // keywords: ['aa'],
@@ -103,7 +117,7 @@ export default defineConfig(() => {
       },
       transforms: {
         enums: {
-          // enabled: false,
+          enabled: false,
           mode: 'root',
           // name: '{{name}}',
         },
@@ -124,7 +138,6 @@ export default defineConfig(() => {
         // baseUrl: false,
         // exportFromIndex: true,
         name: '@hey-api/client-fetch',
-        // name: '@hey-api/client-angular',
         // name: 'legacy/angular',
         // strictBaseUrl: true,
         // throwOnError: true,
@@ -149,6 +162,10 @@ export default defineConfig(() => {
         //   response: '他_response_{{name}}',
         // },
         // tree: true,
+        webhooks: {
+          name: 'Webby{{name}}Hook',
+          payload: '{{name}}WebhookEvent',
+        },
       },
       {
         // asClass: true,
@@ -164,7 +181,7 @@ export default defineConfig(() => {
         // responseStyle: 'data',
         // transformer: '@hey-api/transformers',
         // transformer: true,
-        // validator: 'zod',
+        // validator: 'valibot',
         // validator: {
         //   request: 'zod',
         //   response: 'zod',
@@ -195,33 +212,49 @@ export default defineConfig(() => {
         // queryKeys: {
         //   name: '{{name}}QK',
         // },
+        queryOptions: false,
         // queryOptions: {
         //   name: '{{name}}QO',
         // },
+        useQuery: true,
+        '~hooks': {
+          operations: {
+            getKind: (op) => {
+              if (op.method === 'post' && op.path === '/search') {
+                return ['query'];
+              }
+              return undefined;
+            },
+          },
+        },
       },
       {
         // case: 'SCREAMING_SNAKE_CASE',
         // comments: false,
-        definitions: 'z{{name}}Definition',
-        // exportFromIndex: true,
-        metadata: true,
-        // name: 'valibot',
-        requests: {
-          // case: 'SCREAMING_SNAKE_CASE',
-          name: 'z{{name}}TestData',
-        },
-        responses: {
-          // case: 'snake_case',
-          name: 'z{{name}}TestResponse',
-        },
+        // definitions: 'z{{name}}Definition',
+        exportFromIndex: true,
+        // metadata: true,
+        name: 'valibot',
+        // requests: {
+        //   // case: 'SCREAMING_SNAKE_CASE',
+        //   name: 'z{{name}}TestData',
+        // },
+        // responses: {
+        //   // case: 'snake_case',
+        //   name: 'z{{name}}TestResponse',
+        // },
+        // webhooks: {
+        //   name: 'q{{name}}CoolWebhook',
+        // },
       },
       {
         // case: 'snake_case',
         // comments: false,
-        compatibilityVersion: 4,
-        // dates: {
-        //   offset: true,
-        // },
+        compatibilityVersion: 3,
+        dates: {
+          local: true,
+          // offset: true,
+        },
         definitions: {
           // name: 'z{{name}}Definition',
           //   types: {
@@ -230,7 +263,7 @@ export default defineConfig(() => {
         },
         exportFromIndex: true,
         metadata: true,
-        // name: 'zod',
+        name: 'zod',
         // requests: {
         //   // case: 'SCREAMING_SNAKE_CASE',
         //   // name: 'z{{name}}TestData',
@@ -261,6 +294,27 @@ export default defineConfig(() => {
         // httpResource
         exportFromIndex: true,
         // name: '@angular/common',
+      },
+      {
+        // groupByTag: true,
+        // mutationOptions: '{{name}}Mutationssss',
+        name: '@pinia/colada',
+        // queryOptions: {
+        //   name: '{{name}}Queryyyyy',
+        // },
+        queryKeys: {
+          tags: true,
+        },
+        '~hooks': {
+          operations: {
+            getKind: (op) => {
+              if (op.method === 'post' && op.path === '/search') {
+                return ['query'];
+              }
+              return undefined;
+            },
+          },
+        },
       },
     ],
     // useOptions: false,

@@ -2,6 +2,15 @@
 
 import { z } from 'zod';
 
+export const zExternalSharedExternalSharedModel = z.object({
+    id: z.string(),
+    name: z.string().optional()
+});
+
+export const zExternalRefA = zExternalSharedExternalSharedModel;
+
+export const zExternalRefB = zExternalSharedExternalSharedModel;
+
 /**
  * Testing multiline comments in string: First line
  * Second line
@@ -393,6 +402,33 @@ export const zFailureFailure = z.object({
     error: z.string().optional(),
     message: z.string().optional(),
     reference_code: z.string().optional()
+});
+
+/**
+ * This is a model with one nested property
+ */
+export const zModelWithPropertiesWritable = z.object({
+    required: z.string(),
+    string: z.string().optional(),
+    number: z.number().optional(),
+    boolean: z.boolean().optional(),
+    reference: zModelWithString.optional(),
+    'property with space': z.string().optional(),
+    default: z.string().optional(),
+    try: z.string().optional()
+});
+
+/**
+ * This is a model that contains a some patterns
+ */
+export const zModelWithPatternWritable = z.object({
+    key: z.string().max(64).regex(/^[a-zA-Z0-9_]*$/),
+    name: z.string().max(255),
+    id: z.string().regex(/^\d{2}-\d{3}-\d{4}$/).optional(),
+    text: z.string().regex(/^\w+$/).optional(),
+    patternWithSingleQuotes: z.string().regex(/^[a-zA-Z0-9']*$/).optional(),
+    patternWithNewline: z.string().regex(/aaa\nbbb/).optional(),
+    patternWithBacktick: z.string().regex(/aaa`bbb/).optional()
 });
 
 export const zServiceWithEmptyTagData = z.object({

@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 
+import { CodegenProject } from '@hey-api/codegen-core';
 import type ts from 'typescript';
 import { describe, expect, it, vi } from 'vitest';
 
@@ -38,6 +39,7 @@ describe('generateLegacySchemas', () => {
         path: '',
       },
       parser: {
+        hooks: {},
         pagination: {
           keywords: [],
         },
@@ -133,6 +135,7 @@ describe('generateLegacySchemas', () => {
         },
         context: {} as any,
         dependencies: [],
+        gen: new CodegenProject(),
         handler: () => {},
         name: '@hey-api/schemas',
         output: 'schemas',
@@ -174,6 +177,7 @@ describe('generateLegacySchemas', () => {
         path: '',
       },
       parser: {
+        hooks: {},
         pagination: {
           keywords: [],
         },
@@ -272,6 +276,7 @@ describe('generateLegacySchemas', () => {
         },
         context: {} as any,
         dependencies: [],
+        gen: new CodegenProject(),
         handler: () => {},
         name: '@hey-api/schemas',
         output: 'schemas',

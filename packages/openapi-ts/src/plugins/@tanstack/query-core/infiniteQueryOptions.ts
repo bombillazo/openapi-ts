@@ -234,23 +234,14 @@ export const createInfiniteQueryOptions = ({
   plugin: PluginInstance;
   queryFn: string;
   state: PluginState;
-}) => {
-  if (
-    !plugin.config.infiniteQueryOptions ||
-    !(['get', 'post'] as ReadonlyArray<typeof operation.method>).includes(
-      operation.method,
-    )
-  ) {
-    return state;
-  }
-
+}): void => {
   const pagination = operationPagination({
     context: plugin.context,
     operation,
   });
 
   if (!pagination) {
-    return state;
+    return;
   }
 
   const file = plugin.context.file({ id: plugin.name })!;

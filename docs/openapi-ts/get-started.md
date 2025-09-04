@@ -32,9 +32,7 @@ Launch demo
 The fastest way to use `@hey-api/openapi-ts` is via npx
 
 ```sh
-npx @hey-api/openapi-ts \
-  -i https://get.heyapi.dev/hey-api/backend \
-  -o src/client
+npx @hey-api/openapi-ts -i hey-api/backend -o src/client
 ```
 
 Congratulations on creating your first client! 🎉 You can learn more about the generated files on the [Output](/openapi-ts/output) page.
@@ -91,15 +89,15 @@ The above script can be executed by running `npm run openapi-ts` or equivalent c
 
 ### Node.js
 
-You can also generate output programmatically by importing `@hey-api/openapi-ts` in a JavaScript/TypeScript file.
+You can also generate output programmatically by calling `createClient()` in a JavaScript/TypeScript file.
 
 ::: code-group
 
-```ts [openapi-ts.ts]
+```ts [script.ts]
 import { createClient } from '@hey-api/openapi-ts';
 
 createClient({
-  input: 'https://get.heyapi.dev/hey-api/backend',
+  input: 'hey-api/backend', // sign up at app.heyapi.dev
   output: 'src/client',
 });
 ```

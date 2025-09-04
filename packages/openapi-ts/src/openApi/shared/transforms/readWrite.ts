@@ -1,6 +1,7 @@
 import type { Config } from '../../../types/config';
 import type { Logger } from '../../../utils/logger';
 import { jsonPointerToPath } from '../../../utils/ref';
+import deepEqual from '../utils/deepEqual';
 import { buildGraph, type Graph, type Scope } from '../utils/graph';
 import { buildName } from '../utils/name';
 import { deepClone } from '../utils/schema';
@@ -138,13 +139,9 @@ const pruneSchemaByScope = (
   scope: 'readOnly' | 'writeOnly',
 ): boolean => {
   if (schema && typeof schema === 'object') {
-    // Remove $ref if the referenced schema is exclusively the excluded scope
-    if (
-      '$ref' in schema &&
-      typeof (schema as Record<string, unknown>)['$ref'] === 'string'
-    ) {
-      const ref = (schema as Record<string, unknown>)['$ref'] as string;
-      const nodeInfo = graph.nodes.get(ref);
+    // Handle $ref schemas
+    if ('$ref' in schema && typeof schema.$ref === 'string') {
+      const nodeInfo = graph.nodes.get(schema.$ref);
       if (nodeInfo?.scopes) {
         // Only remove $ref if the referenced schema is *exclusively* the excluded scope.
         // This ensures 'normal' or multi-scope schemas are always kept.
@@ -196,6 +193,9 @@ const pruneSchemaByScope = (
         !(value instanceof Array)
       ) {
         const objMap = value as Record<string, unknown>;
+        // Track removed properties for object schemas to update required array
+        const removedProperties = new Set<string>();
+
         for (const key of Object.keys(objMap)) {
           const prop = objMap[key];
           if (
@@ -204,13 +204,42 @@ const pruneSchemaByScope = (
             (prop as Record<string, unknown>)[scope] === true
           ) {
             delete objMap[key];
+            // Track removed properties for object schemas
+            if (keyword === 'properties') {
+              removedProperties.add(key);
+            }
           } else {
             const shouldRemove = pruneSchemaByScope(graph, prop, scope);
             if (shouldRemove) {
               delete objMap[key];
+              // Track removed properties for object schemas
+              if (keyword === 'properties') {
+                removedProperties.add(key);
+              }
             }
           }
         }
+
+        // Update required array if properties were removed
+        if (
+          removedProperties.size > 0 &&
+          keyword === 'properties' &&
+          'required' in schema &&
+          Array.isArray((schema as Record<string, unknown>).required)
+        ) {
+          const required = (schema as Record<string, unknown>)
+            .required as string[];
+          const filteredRequired = required.filter(
+            (prop) => !removedProperties.has(prop),
+          );
+
+          if (filteredRequired.length === 0) {
+            delete (schema as Record<string, unknown>).required;
+          } else {
+            (schema as Record<string, unknown>).required = filteredRequired;
+          }
+        }
+
         if (!Object.keys(objMap).length) {
           delete (schema as Record<string, unknown>)[keyword];
         }
@@ -361,10 +390,11 @@ export const splitSchemas = ({
 
   for (const [pointer, nodeInfo] of graph.nodes) {
     const name = pointerToSchema(pointer);
-    // Only split top-level schemas, with both read-only and write-only scopes.
+    // Only split top-level schemas, with either read-only or write-only scopes (or both).
     if (
       !name ||
-      !(nodeInfo.scopes?.has('read') && nodeInfo.scopes?.has('write'))
+      !(nodeInfo.scopes?.has('read') || nodeInfo.scopes?.has('write')) ||
+      !nodeInfo.scopes?.has('normal')
     ) {
       continue;
     }
@@ -390,6 +420,15 @@ export const splitSchemas = ({
     // write variant
     const writeSchema = deepClone<unknown>(nodeInfo.node);
     pruneSchemaByScope(graph, writeSchema, 'readOnly');
+
+    // If pruning did not change anything (both variants equal and equal to original),
+    // skip splitting and keep the original single schema.
+    if (
+      deepEqual(readSchema, writeSchema) &&
+      deepEqual(readSchema, nodeInfo.node)
+    ) {
+      continue;
+    }
     const writeBase = buildName({
       config: config.requests,
       name,
@@ -466,7 +505,10 @@ export const updateRefsInSpec = ({
       let nextPointer = currentPointer;
       let nextContext = context;
       if (isPathRootSchema(path)) {
-        nextPointer = `${schemasPointerNamespace}${path[2]}`;
+        // Use the last path segment instead of a fixed index (path[2]) because
+        // path depth varies across OAS2/OAS3 and contexts; fixed indexing is brittle.
+        const nameSegment = path[path.length - 1] as string;
+        nextPointer = `${schemasPointerNamespace}${nameSegment}`;
         const originalPointer = split.reverseMapping[nextPointer];
         if (originalPointer) {
           const mapping = split.mapping[originalPointer];
@@ -580,11 +622,14 @@ export const updateRefsInSpec = ({
             path: [...path, key],
           });
         } else if (key === '$ref' && typeof value === 'string') {
+          // Prefer exact match first
           const map = split.mapping[value];
-          if (nextContext === 'read' && map?.read) {
-            (node as Record<string, unknown>)[key] = map.read;
-          } else if (nextContext === 'write' && map?.write) {
-            (node as Record<string, unknown>)[key] = map.write;
+          if (map) {
+            if (map.read && (!nextContext || nextContext === 'read')) {
+              (node as Record<string, unknown>)[key] = map.read;
+            } else if (map.write && (!nextContext || nextContext === 'write')) {
+              (node as Record<string, unknown>)[key] = map.write;
+            }
           }
         } else {
           walk({

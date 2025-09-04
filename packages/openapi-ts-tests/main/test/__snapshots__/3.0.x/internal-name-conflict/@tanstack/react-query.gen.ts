@@ -59,10 +59,10 @@ export const createOptions = (options?: Options<CreateData>) => {
 
 export const create2Mutation = (options?: Partial<Options<Create2Data>>): UseMutationOptions<unknown, DefaultError, Options<Create2Data>> => {
     const mutationOptions: UseMutationOptions<unknown, DefaultError, Options<Create2Data>> = {
-        mutationFn: async (localOptions) => {
+        mutationFn: async (fnOptions) => {
             const { data } = await create2({
                 ...options,
-                ...localOptions,
+                ...fnOptions,
                 throwOnError: true
             });
             return data;
@@ -71,29 +71,12 @@ export const create2Mutation = (options?: Partial<Options<Create2Data>>): UseMut
     return mutationOptions;
 };
 
-export const create3QueryKey = (options?: Options<Create3Data>) => createQueryKey('create3', options);
-
-export const create3Options = (options?: Options<Create3Data>) => {
-    return queryOptions({
-        queryFn: async ({ queryKey, signal }) => {
-            const { data } = await create3({
-                ...options,
-                ...queryKey[0],
-                signal,
-                throwOnError: true
-            });
-            return data;
-        },
-        queryKey: create3QueryKey(options)
-    });
-};
-
 export const create3Mutation = (options?: Partial<Options<Create3Data>>): UseMutationOptions<unknown, DefaultError, Options<Create3Data>> => {
     const mutationOptions: UseMutationOptions<unknown, DefaultError, Options<Create3Data>> = {
-        mutationFn: async (localOptions) => {
+        mutationFn: async (fnOptions) => {
             const { data } = await create3({
                 ...options,
-                ...localOptions,
+                ...fnOptions,
                 throwOnError: true
             });
             return data;
